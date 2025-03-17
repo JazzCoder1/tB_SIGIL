@@ -9,7 +9,7 @@ A very simple cross-platform library for playing audio, handling basic input, an
 You can learn more about this library here:
 http://www.libsigil.com/
 
-There is also a GitLAb repository here:   
+There is also a GitLAb repository here:
 https://gitlab.com/geoff-nagy/sigil
 
 ### twinBASIC Binding
