@@ -19,7 +19,7 @@ This is a 32-bit binding.
 
 ### License
 
-This twinBASIC SIGIL binder uses the UnLicense.  
+This twinBASIC SIGIL binding uses the UnLicense.  
 SIGIL has its own License(s).
 
 
