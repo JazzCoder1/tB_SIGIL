@@ -1,0 +1,92 @@
+Module modMain
+Option Explicit On
+
+Sub Main()
+
+'// the width And height of our desired window in pixels rendered objects use the same coordinate space,
+'// With the bottom left-hand corner having the world-space coordinate of (0, 0)
+Const WINDOW_WIDTH = 500
+Const WINDOW_HEIGHT = 500
+
+'// this initializes the sigil library And creates a window of the desired size
+slWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "SIGIL Shapes Example", False)
+
+'// the colour of the background Is specified using RGB values in the range [0.0, 1.0]
+slSetBackColor(0.0, 0.0, 0.0) '// black
+
+'// the window will remain open (And the program will remain in this loop) until the user presses the 'X' to close
+While slShouldClose() = 0 And slGetKey(SL_KEY_ESCAPE) = 0
+
+    '// draw the inner fill For a triangle
+    slSetForeColor(0.5, 0.0, 0.0, 0.5)
+    slTriangleFill(100.0, 450.0, 50.0, 50.0)
+
+    '// draw the outline For a triangle
+    slSetForeColor(0.8, 0.0, 0.0, 0.8)
+    slTriangleOutline(100.0, 450.0, 50.0, 50.0)
+
+    '// draw the inner fill For a rectangle
+    slSetForeColor(0.5, 0.5, 0.0, 0.5)
+    slRectangleFill(175.0, 450.0, 50.0, 50.0)
+
+    '// draw the outline For a rectangle
+    slSetForeColor(0.8, 0.8, 0.0, 0.8)
+    slRectangleOutline(175.0, 450.0, 50.0, 50.0)
+
+    '// draw the inner fill For a hexagon
+    slSetForeColor(0.0, 0.5, 0.0, 0.5)
+    slCircleFill(250.0, 450.0, 25.0, 6)
+
+    '// draw the outline For a hexagon
+    slSetForeColor(0.0, 0.8, 0.0, 0.8)
+    slCircleOutline(250.0, 450.0, 25.0, 6)
+
+    '// draw the inner fill For a circle
+    slSetForeColor(0.0, 0.0, 0.5, 0.5)
+    slCircleFill(325.0, 450.0, 25.0, 16)
+
+    '// draw the outline For a circle
+    slSetForeColor(0.0, 0.0, 0.8, 0.8)
+    slCircleOutline(325.0, 450.0, 25.0, 16)
+
+    '// draw the inner fill For a semicircle
+    slSetForeColor(0.5, 0.0, 0.5, 0.5)
+    slSemiCircleFill(400.0, 450.0, 25.0, 16, 120.0)
+
+    '// draw the outline For a semicircle
+    slSetForeColor(0.8, 0.0, 0.8, 0.8)
+    slSemiCircleOutline(400.0, 450.0, 25.0, 16, 120.0)
+
+    '// draw some lines that move downwards And change colour
+    Dim i As Integer
+    For i = 0 To 19
+    
+        slSetForeColor(i / 20.0, i / 40.0, 0.0, 0.9)
+        slLine(100.0, 400.0 - i * 10.0, 400.0, 400.0 - i * 10.0)
+    Next i
+
+    '// now draw some pretty points whose (x, y) position determines their colour
+    Dim x As Integer
+    For x = 100 To 400 Step 6
+            Dim y As Integer
+        For y = 25 To 200 Step 3
+        
+            '// shifting colours As we move across the array of points
+            slSetForeColor((x - 100) / 300.0, (y - 100) / 175.0, 0.0, 1.0)                            '// alpha Is full
+
+            '// draw our point at the specified coordinate
+            slPoint(x, y)
+        Next y
+    
+    Next x
+    '// display anything that SIGIL needs to As a result of drawing commands
+    slRender()
+Wend
+
+'// shut down our sigil window
+slClose()
+
+End Sub
+
+
+End Module

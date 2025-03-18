@@ -1,0 +1,166 @@
+Module modMain
+Option Explicit On
+
+Sub Main()
+
+    '// input
+    '// demonstrates some simple text, mouse/keyboard input, and delta motion timing
+
+    '// minimum and maximum allowed number of bubbles in the mouse-following chain
+    Const MIN_CIRCLES = 5
+    Const MAX_CIRCLES = 50
+
+    '// main program
+
+        '// the width and height of our desired window in pixels rendered objects use the same coordinate space,
+        '// with the bottom left-hand corner having the world-space coordinate of (0, 0)
+        Const WINDOW_WIDTH = 700
+        Const WINDOW_HEIGHT = 600
+ 
+        '// circle properties
+        Const CIRCLE_SPEED = 20.0        '// how fast the circles move towards their target, in units per second
+        Const CIRCLE_RADIUS = 40.0        '// radius of largest circle
+
+        '// the number of actual bubbles we're using
+        Dim numCircles As Integer = MAX_CIRCLES / 2
+
+        '// define the properties for each bubble in the chain of bubbles following the mouse
+        Dim circleXCoords(MAX_CIRCLES) As Double   '// x position
+        Dim circleYCoords (MAX_CIRCLES)  As Double  '// y position
+        Dim tailFactor As Double                '// factor from 1.0 to 0.0 as we iterate through the bubble chain, for computing values below
+        Dim speed As Double                     '// speed of current bubble when catching up to the next one
+        Dim radius As Double                     '// bubbles scale down in size as we go further down the bubble chain
+        Dim vertices As Integer                     '// bubble vertex count scales down as we go further down the bubble chain
+        Dim i As Integer
+
+        '// for explanatory text to user
+        Dim font As Integer
+        Dim str(128) As String
+
+        '// key reading
+        Dim keyW As Boolean = False
+        Dim keyS As Boolean = False
+
+        '// indicates how long the previous frame took to render, in seconds
+        Dim dt As Double
+
+        '// initialize the position of our circles to the center of the world
+        For i = 0 To MAX_CIRCLES - 1
+        
+            circleXCoords (i) = 350.0
+            circleYCoords (i) = 300.0
+        Next i
+
+        '// this initializes the sigil library and creates a window of the desired size
+        slWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "SIGIL Input Example", False)
+
+        '// the colour of the background is specified using RGB values in the range [0.0, 1.0]
+        slSetBackColor(0.0, 0.0, 0.0)        '// black
+
+        '// set the font we want to use
+        font = slLoadFont(App.Path & "/ttf/white_rabbit.ttf")
+        slSetFont(font, 16)
+
+        '// the window will remain open (and the program will remain in this loop) until the user presses the 'X' to close
+        While slShouldClose() = 0 And slGetKey(SL_KEY_ESCAPE) = 0
+        
+            '// grab our time multiplier
+            dt = slGetDeltaTime()
+
+            '// read the 'W' key to increase the number of circles
+            If (slGetKey(AscW("W"))) Then
+            
+                If (Not keyW) Then
+                
+                    keyW = True
+                    numCircles = numCircles + 1
+                    If (numCircles > MAX_CIRCLES) Then numCircles = MAX_CIRCLES
+                End If
+            
+            Else
+            
+                keyW = False
+            End If
+
+            '// read the 'S' key to decrease the number of circles
+            If (slGetKey(AscW("S"))) Then
+        
+                If (Not keyS) Then
+                
+                    keyS = True
+                    numCircles = numCircles - 1
+                    If (numCircles < MIN_CIRCLES) Then numCircles = MIN_CIRCLES
+                End If
+            
+            Else
+            
+                keyS = False
+            End If
+
+            '// make the first circle follow the mouse
+            circleXCoords (0) = slGetMouseX()
+            circleYCoords(0) = slGetMouseY()
+
+            '// the other circles follow the one ahead of it
+            For i = 1 To MAX_CIRCLES - 1
+            
+                speed = CIRCLE_SPEED * dt
+                circleXCoords(i) = moveTowards(circleXCoords(i), circleXCoords(i - 1), speed)
+                circleYCoords(i) = moveTowards(circleYCoords(i), circleYCoords(i - 1), speed)
+            Next i
+
+            '// now render our circles
+            For i = 0 To numCircles - 1
+            
+                '// compute a colour and size factor for the bubbles
+                tailFactor = i / MAX_CIRCLES
+                radius = CIRCLE_RADIUS * (1.0 - tailFactor)
+                vertices = 15 - CInt((10.0 * tailFactor))                    '// larger bubbles require more vertices
+
+                '// render the solid circle fill
+                slSetForeColor(0.0, 1.0 - tailFactor, tailFactor, 0.3)
+                slCircleFill(circleXCoords(i), circleYCoords(i), radius, vertices)  '// larger bubbles require more vertices
+
+                '// render the circle outline
+                slSetForeColor(0.0, 1.0 - tailFactor, tailFactor, 0.5)
+                slCircleOutline(circleXCoords(i), circleYCoords(i), radius, vertices)  '// larger bubbles require more vertices
+            Next i
+
+
+    
+            slSetForeColor(1.0, 1.0, 1.0, 1.0)
+           '// show some explanatory text
+           slText(10, WINDOW_HEIGHT - 20, "move the mouse around " & numCircles & " bubbles in chain" & vbCrLf & "use W to increase Or S to decrease")
+
+            '// display anything that SIGIL needs to as a result of drawing commands
+            slRender()
+        Wend
+
+        '// shut down our sigil window
+        slClose()
+
+        '// program ends
+
+  End Sub ' Main
+
+    '// linear interpolation between two values, with clamping to prevent overshoot
+    Function moveTowards(ByVal current As Double, ByVal target As Double, ByVal step As Double) As Double
+    
+        Dim result As Double
+        
+        result = current + (target - current) * step
+        
+        If (current < target And result > target) Then
+            result = target
+        ElseIf (current > target And result < target) Then
+            result = target
+        End If
+        
+        Return result
+    
+        End Function
+    
+
+
+
+End Module

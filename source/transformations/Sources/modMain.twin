@@ -1,0 +1,108 @@
+Module modMain
+Option Explicit On
+
+Sub Main()
+
+    '// transformations
+    '// demonstrates how to use the SIGIL transformation matrix stack
+
+    '// main program
+        '// the width And height of our desired window in pixels rendered objects use the same coordinate space,
+        '// With the bottom left-hand corner having the world-space coordinate of (0, 0)
+        Const WINDOW_WIDTH As Integer = 500
+        Const WINDOW_HEIGHT As Integer = 500
+
+        '// indicates how long the previous frame took to render, in seconds
+        Dim dt As Double
+
+        '// angle of parent limb that rotates around the center of the screen
+        Dim angle As Double = 0.0
+
+        '// this initializes the sigil library And creates a window of the desired size
+        slWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "SIGIL Transformations Example", False)
+
+        '// the colour of the background Is specified using RGB values in the range [0.0, 1.0]
+        slSetBackColor(0.0, 0.0, 0.0)         '// black
+
+        '// the window will remain open (And the program will remain in this loop) until the user presses the 'X' to close
+        While slShouldClose() = 0 And slGetKey(SL_KEY_ESCAPE) = 0
+        
+            '// grab our time multiplier
+            dt = slGetDeltaTime()
+
+            '// increment the angle of the main limb
+            angle += 20 * dt
+
+            '// rotate the entire limb system around the center of the screen
+            slPush()
+                slTranslate(250, 250)                     '// move to the center of the screen
+                slRotate(angle)                         '// entire system rotates around the center of the screen
+                drawLimb(120)                             '// the length of the parent limb Is 120
+                drawJoint(120)
+
+                '// a child limb rotates around the End of the parent limb
+                slPush()
+                    slTranslate(0, 120)                 '// translate to the End of the parent limb above (which has length 120)
+                    slRotate(angle * 2.0)                 '// rotate a little faster than the parent
+                    drawLimb(75)                         '// the length of this child limb Is 75
+                    drawJoint(75)
+
+                    '// another child limb below that, rotating around its parent
+                    slPush()
+                        slTranslate(0, 75)                 '// translate to the End of this limb's parent (which has length 75)
+                        slRotate(angle * 3.0)             '// rotate even faster than our parent
+                        drawLimb(35)                     '// this limb has a length of 35
+                        drawJoint(35)
+                    slPop()
+
+                    '// this Is a sibling limb that rotates around the same joint As the limb we just rendered above
+                    slPush()
+                        slTranslate(0, 75)                 '// translate to the End of this limb's parent (which has length 75)
+                        slRotate(angle * -2.5)             '// rotate a little slower than our sibling limb, And in reverse
+                        drawLimb(30)                     '// no need to draw a joint, since our sibling did that already
+
+                        '// a final child limb attached to the sibling limb above
+                        slPush()
+                            slTranslate(0, 30)             '// translate to the End of the latter sibling's limb
+                            slRotate(angle * 2.2)         '// rotate around the joint, As before
+                            drawLimb(25)
+                            drawJoint(25)
+                        slPop()
+
+                    slPop()
+
+                slPop()
+
+            slPop()
+
+            '// display anything that SIGIL needs to As a result of drawing commands
+            slRender()
+        Wend
+
+        '// shut down our sigil window
+        slClose()
+
+        '// program ends
+    End Sub ' Main
+
+    '// draw a line With one point at the origin
+    Sub drawLimb(ByVal limbLength As Single)
+    
+        slSetForeColor(1.0, 1.0, 1.0, 1.0)
+        slLine(0, 0, 0, limbLength)
+    End Sub
+
+    '// draw a circle around the origin
+    Sub drawJoint(ByVal limbLength As Single)
+    
+        slSetForeColor(0.0, 0.5, 0.0, 0.5)
+        slCircleFill(0, 0, limbLength * 0.2, 16)
+
+        slSetForeColor(0.0, 0.9, 0.0, 0.9)
+        slCircleOutline(0, 0, limbLength * 0.2, 16)
+    End Sub
+    
+
+
+
+End Module

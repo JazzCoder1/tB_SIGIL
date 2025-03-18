@@ -1,0 +1,100 @@
+Module modMain
+Option Explicit On
+
+Sub Main()
+
+    Debug.Cls
+    
+    '// sprites
+    '// demonstrates how to display images As sprites
+
+        Const NUM_FLARES = 30
+
+        '// the width And height of our desired window in pixels; rendered objects use the same coordinate space,
+        '// With the bottom left-hand corner having the world-space coordinate of (0, 0)
+        Const WINDOW_WIDTH = 500
+        Const WINDOW_HEIGHT = 500
+
+        '// indicates how long the previous frame took to render, in seconds
+        Dim dt As Double = 0
+
+        '// scrolling values For our main checkered background
+        Dim scrollX As Double = 0.0
+        Dim scrollY As Double = 0.0
+
+        '// positions And sizes of sprites
+         Dim flareX(NUM_FLARES) As Double
+         Dim flareY(NUM_FLARES) As Double
+         Dim flareSizes(NUM_FLARES) As Double
+         Dim i As Integer = 0
+
+        '// our texture identifiers
+        Dim patternTex As Integer
+        Dim flareTex As Integer
+
+        '// this initializes the sigil library And creates a window of the desired size
+        slWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "SIGIL Sprites Example", False)
+
+        '// the colour of the background Is specified using RGB values in the range [0.0, 1.0]
+        slSetBackColor(0.0, 0.0, 0.0)        '// black
+
+        '// load up some textures
+        patternTex = slLoadTexture("png/pattern.png")
+        flareTex = slLoadTexture("png/flare.png")
+
+        '// assign random flare positions And sizes
+        For i = 0 To (NUM_FLARES - 1)
+        
+            flareX(i) = CInt(Rnd() * 32767) Mod 500
+            flareY(i) = CInt(Rnd() * 32767) Mod 500
+            flareSizes(i) = 40 + CInt(Rnd() * 32767) Mod 170
+            
+        Next i
+
+        '// the window will remain open (And the program will remain in this loop) until the user presses the 'X' to close
+        While slShouldClose() = 0 And slGetKey(SL_KEY_ESCAPE) = 0
+        
+            '// grab our time multiplier
+            dt = slGetDeltaTime()
+
+            '// scroll our background a little
+            scrollX += dt
+            scrollY += dt * 2.0
+
+            '// draw the main checkered background by tiling a simple 2x2 pattern
+            slSetAdditiveBlend(False)
+            slSetForeColor(0.0, 0.4, 0.7, 0.6)  'rgba
+            slSetSpriteTiling(20.0, 20.0)                    '// tile the pattern
+            slSetSpriteScroll(scrollX, scrollY)            '// scroll the texture On the sprite
+            slSprite(patternTex, 250, 250, 500, 500)
+
+            '// prepare our sprite settings For the flare bubbles we will render
+            slSetAdditiveBlend(True)
+            slSetForeColor(0.5, 0.5, 0.1, 0.6)
+            slSetSpriteTiling(1.0, 1.0)                    '// reset the tiling to default
+            slSetSpriteScroll(0.0, 0.0)                    '// ...and don't scroll, either
+
+            '// render the glowing flares
+            For i = 0 To (NUM_FLARES - 1)
+            
+                '// flares move all the way up And then reset at the bottom of the world
+                flareY(i) += 20.0 * dt
+                If (flareY(i) > 500.0 + flareSizes(i) / 2.0) Then
+                    flareY(i) = -flareSizes(i) / 2.0
+                End If
+
+                '// render the flare at its appropriate position
+                slSprite(flareTex, flareX(i), flareY(i), flareSizes(i), flareSizes(i))
+            Next i
+
+            '// display anything that SIGIL needs to As a result of drawing commands
+            slRender()
+        End While
+
+        '// shut down our sigil window
+        slClose()
+    
+
+End Sub ' Main
+
+End Module

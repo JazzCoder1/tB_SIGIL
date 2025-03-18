@@ -1,0 +1,78 @@
+Module modMain
+
+Option Explicit On
+    
+Sub Main()
+
+    
+    '// sprites
+    '// demonstrates how to display images As sprites
+
+  
+        '// the width And height of our desired window in pixels; rendered objects use the same coordinate space,
+        '// With the bottom left-hand corner having the world-space coordinate of (0, 0)
+        Const WINDOW_WIDTH = 500
+        Const WINDOW_HEIGHT = 500
+
+        '// indicates how long the previous frame took to render, in seconds
+        Dim dt As Double = 0
+
+        '// our texture identifiers
+        Dim tex_TB As Integer = 0
+        
+        Dim size As ImgDimType  ' variable to hold the texture sizes
+        Dim ext As String = ""  ' holds the type of texture file
+
+        Dim angle As Double = 0.0
+    
+        '// this initializes the sigil library And creates a window of the desired size
+        slWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "SIGIL Sprites Example - twinBASIC", False)
+
+        '// the colour of the background Is specified using RGB values in the range [0.0, 1.0]
+        slSetBackColor(0.0, 0.0, 0.0)        '// black
+
+        '// load up some textures
+        tex_TB = slLoadTexture("png/tb_sm.png")
+        getImgDim("png/tb_sm.png", size, ext)
+
+        '// the window will remain open (And the program will remain in this loop) until the user presses the 'X' to close
+        While slShouldClose() = 0 And slGetKey(SL_KEY_ESCAPE) = 0
+        
+            '// grab our time multiplier
+            dt = slGetDeltaTime()
+
+            angle = angle - (20 * dt)
+            If angle > 360 Then angle = 0
+            If angle < -360 Then angle = 0
+        
+            '// draw the main checkered background by tiling a simple 2x2 pattern
+            slSetAdditiveBlend(False)
+            slSetForeColor(0.0, 0.4, 0.7, 0.6)  'rgba : blueish color
+            'slSetSpriteTiling(20.0, 20.0)                    '// tile the pattern
+            'slSetSpriteScroll(10, 20)            '// scroll the texture On the sprite
+            slSprite(tex_TB, 25, 25, 50, 50) ' draw it squished
+                                             ' the width and height stretch or squash the entire image
+
+            slPush()
+                
+            slSetForeColor(1, 1, 1, 1)  'rgba : white
+                slTranslate(250, 250)   ' this is where we want the sprite, note 0,0 is bottom left in openGL
+                slRotate(angle)
+                'slScale(2, 2)
+                slSprite(tex_TB, 0, 0, size.width, size.height)  ' x and y are already taken care of in the slTranslate command
+            
+            slPop()
+            
+
+
+            '// display anything that SIGIL needs to as a result of drawing commands
+            slRender()
+        End While
+
+        '// shut down our sigil window
+        slClose()
+    
+
+End Sub ' Main
+
+End Module

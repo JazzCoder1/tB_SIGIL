@@ -1,0 +1,158 @@
+Module modMain
+Option Explicit On
+
+Sub Main()
+
+
+    '// the width And height of our desired window in pixels rendered objects use the same coordinate space,
+    '// with the bottom left-hand corner having the world-space coordinate of (0, 0)
+    Const WINDOW_WIDTH = 380
+    Const WINDOW_HEIGHT = 140
+
+    '// track the keys that are currently down
+    Dim digitKeysDown(10) As Boolean
+    Dim musicPlayKeyDown As Boolean = False
+    Dim musicLoopKeyDown As Boolean = False
+    Dim pauseKeyDown As Boolean = False
+    Dim resumeKeyDown As Boolean = False
+    Dim stopKeyDown As Boolean = False
+
+    '// ID of the font we're going to load
+    Dim font As Integer
+
+    '// SL sound loading
+    Dim soundName(32) As String                   '// to build filenames of the phone beeps
+    Dim digitSounds(10) As Integer               '// for phone digit beeps we load
+    Dim music As Integer                     '// for the music loop we load
+    Dim i As Integer
+
+    '// this initializes the sigil library and creates a window of the desired size
+    slWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "SIGIL Sound Example", False)
+
+    '// the colour of the background is specified using RGB values in the range (0.0, 1.0)
+    slSetBackColor(0.0, 0.0, 0.0)        '// black
+
+    '// set a pleasant-looking font
+    font = slLoadFont(App.Path & "/ttf/white_rabbit.ttf")
+    slSetFont(font, 12)
+
+    '// load the sounds corresponding to phone number beeps
+    For i = 0 To 9
+        
+        soundName(i) = App.Path & "\wav\" & Trim$(Str$(i)) & ".wav"
+    
+        digitSounds(i) = slLoadWAV(soundName(i))
+        digitKeysDown(i) = False
+    Next i
+
+    '// load the music this is licensed under the CC0 1.0 License
+    music = slLoadWAV(App.Path & "/wav/220427__massacresoundz__intro-loop-hs-24-02-2014.wav")
+
+    '// the window will remain open (and the program will remain in this loop) until the user presses the 'X' to close
+    While slShouldClose() = 0 And slGetKey(SL_KEY_ESCAPE) = 0
+    
+        '// print some introductory text giving some options to the user
+        slText(20, 120, "Press 0-9 for the corresponding phone beeps")
+        slText(20, 100, "Press M to play music once")
+        slText(20, 80, "Press L to loop music")
+        slText(20, 60, "Press P to pause all sounds")
+        slText(20, 40, "Press R to resume any paused sounds")
+        slText(20, 20, "Press S to stop all sounds")
+
+        '// play phone digit beep when user presses corresponding key
+        For i = 0 To 9
+            
+            If (slGetKey(AscW("0") + i)) Then
+            
+                If Not digitKeysDown(i) Then
+                
+                    slSoundPlay(digitSounds(i))
+                    digitKeysDown(i) = True
+                End If
+            
+            Else
+            
+                digitKeysDown(i) = False
+            End If
+        Next i
+
+        '// M key plays music once
+        If (slGetKey(AscW("M"))) Then
+        
+            If Not musicPlayKeyDown Then
+            
+                slSoundPlay(music)
+                musicPlayKeyDown = True
+            End If
+        
+        Else
+        
+            musicPlayKeyDown = False
+        End If
+
+        '// L key loops music
+        If (slGetKey(AscW("L"))) Then
+        
+            If Not musicLoopKeyDown Then
+            
+                slSoundLoop(music)
+                musicLoopKeyDown = True
+            End If
+        
+        Else
+        
+            musicLoopKeyDown = False
+        End If
+
+        '// P key pauses everything
+        If (slGetKey(AscW("P"))) Then
+        
+            If Not pauseKeyDown Then
+            
+                slSoundPauseAll()
+                pauseKeyDown = True
+            End If
+        
+        Else
+        
+            pauseKeyDown = False
+        End If
+
+        '// R key resumes everything that was paused
+        If (slGetKey(AscW("R"))) Then
+        
+            If Not resumeKeyDown Then
+            
+                slSoundResumeAll()
+                resumeKeyDown = True
+            End If
+        
+        Else
+        
+            resumeKeyDown = False
+        End If
+
+        '// S key stops all sounds (including paused ones)
+        If (slGetKey(AscW("S"))) Then
+        
+            If Not stopKeyDown Then
+            
+                slSoundStopAll()
+                stopKeyDown = True
+            End If
+        
+        Else
+        
+            stopKeyDown = False
+        End If
+
+        '// display anything that SIGIL needs to as a result of drawing commands
+        slRender()
+    Wend
+
+    '// shut down our sigil window
+    slClose()
+
+End Sub
+
+End Module
