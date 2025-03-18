@@ -17,7 +17,7 @@ This code allows the use of SIGIL in twinBASIC.
 Multiple examples are provided.  
 This is a 32-bit binding.
 
-![screenshot](https://raw.githubusercontent.com/jazzcoder1/tb_sigil/master/screenshots.png?raw=true "Examples")
+![screenshot](https://github.com/JazzCoder1/tB_SIGIL/blob/main/screenshots.PNG "Examples")
 
 ### License
 
