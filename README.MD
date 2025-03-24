@@ -16,6 +16,8 @@ https://gitlab.com/geoff-nagy/sigil
 This code allows the use of SIGIL in twinBASIC.  
 Multiple examples are provided.  
 This is a 32-bit binding.
+(note: SIGIL requires OpenGL.  It did not work on an older laptop with integrated graphics
+however, it worked fine on a desktop PC with a dedicated graphics card.)
 
 ![screenshot](https://github.com/JazzCoder1/tB_SIGIL/blob/main/screenshots.PNG "Examples")
 
